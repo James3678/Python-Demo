@@ -1,0 +1,17 @@
+Mappings
+
+X12 837 → FHIR Claim (use=claim), with Patient and Organization resources.
+X12 278 → FHIR Claim (use=preauthorization), the PAS-style resource.
+HL7 v2 ADT → Patient + Encounter, mapping PID to Patient and PV1 to Encounter.
+
+Patterns in the code
+
+Anti-corruption boundary: parse → map → emit, so X12 and HL7 structures never leak downstream.
+Idempotency: deterministic UUIDs plus conditional-update transaction Bundles (PUT Patient?identifier=…) make replays safe.
+Dead-letter handling: translate() routes failures to a DLQ list, which would be a Kafka topic in production.
+
+Not production-ready
+
+Only the main loops are handled. The 837 and 278 HL hierarchies (dependents, multiple service lines, 2300/2400 loop context) need full handling.
+No code-set or terminology validation, and no FHIR profile validation against the Da Vinci PAS and CRD IGs.
+A real build would use pyx12 or Edifecs for X12, hl7apy for v2, and HAPI or fhir.resources for validation.
