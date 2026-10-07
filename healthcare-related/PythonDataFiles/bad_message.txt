@@ -1,0 +1,1 @@
+this is not X12 or HL7
